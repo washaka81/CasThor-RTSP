@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CasThor RTSP</string>
+    <string name="server_stopped">Servidor detenido</string>
+    <string name="server_running">Servidor corriendo</string>
+    <string name="url_placeholder">rtsp://0.0.0.0:8554/stream</string>
+    <string name="copy_url">Copiar URL</string>
+    <string name="clients">Clientes:</string>
+    <string name="data_sent">Enviado:</string>
+    <string name="codec">Codec de video</string>
+    <string name="resolution">Resolucion</string>
+    <string name="port">Puerto:</string>
+    <string name="start_server">Iniciar servidor</string>
+    <string name="stop_server">Detener servidor</string>
+    <string name="logs">Logs de conexion</string>
+    <string name="clear">Limpiar</string>
+    <string name="camera_permission_required">Permiso de camara requerido</string>
+    <string name="url_copied">URL copiada</string>
+    <string name="error_starting_server">Error al iniciar el servidor</string>
+    <string name="server_started_success">Servidor iniciado correctamente</string>
+    <string name="switch_camera">Cambiar camara</string>
+    
+    <string-array name="codecs">
+        <item>H.264 (Recomendado)</item>
+        <item>H.265/HEVC</item>
+        <item>MPEG-4 SP</item>
+    </string-array>
+    
+    <string-array name="codec_values">
+        <item>h264</item>
+        <item>h265</item>
+        <item>mpeg4</item>
+    </string-array>
+    
+    <string-array name="resolutions">
+        <item>1280x720 (HD)</item>
+        <item>1920x1080 (Full HD)</item>
+    </string-array>
+    
+    <string-array name="resolution_values">
+        <item>1280x720</item>
+        <item>1920x1080</item>
+    </string-array>
+</resources>

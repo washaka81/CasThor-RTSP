@@ -1,0 +1,6 @@
+-keep class kotlin.** { *; }
+-keep class kotlinx.coroutines.** { *; }
+-keep class com.pedro.rtspserver.** { *; }
+-keep class com.pedro.library.** { *; }
+-dontwarn kotlin.**
+-dontwarn kotlinx.coroutines.**

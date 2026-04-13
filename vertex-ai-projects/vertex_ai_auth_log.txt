@@ -1,0 +1,41 @@
+Registro de Resolución de Problemas de Autenticación de Vertex AI
+
+Fecha: 12 de abril de 2026
+
+Problema Inicial:
+El usuario no podía usar Vertex AI con gemini-cli, recibiendo errores de autenticación (API keys not supported, UNAUTHENTICATED, CREDENTIALS_MISSING).
+
+Pasos Tomados:
+
+1.  **Autenticación con gcloud:**
+    *   Se ejecutó `gcloud auth application-default login` para establecer las Credenciales Predeterminadas de la Aplicación (ADC).
+    *   Se confirmó que las credenciales se guardaron en `/home/ale/.config/gcloud/application_default_credentials.json`.
+
+2.  **Verificación del Script `verify.py`:**
+    *   Se listó el directorio `vertex-ai-projects` y se identificó `verify.py`.
+    *   Se ejecutó `source venv/bin/activate && python verify.py` para probar la conexión.
+    *   Primer error: `module 'vertexai.preview' has no attribute 'global_config'`.
+
+3.  **Corrección de `verify.py` (Intento 1):**
+    *   Se leyó `verify.py`.
+    *   Se intentó usar `vertexai.get_project()` y `vertexai.get_location()`.
+    *   Segundo error al ejecutar `verify.py`: `module 'vertexai' has no attribute 'get_project'`. Esto indicó que la versión de la librería no era compatible con estos métodos.
+
+4.  **Actualización de la Librería `google-cloud-aiplatform`:**
+    *   Se ejecutó `source venv/bin/activate && pip install --upgrade google-cloud-aiplatform`.
+    *   Se confirmó que la versión `1.147.0` ya estaba instalada, lo que indicó que los métodos `get_project()` y `get_location()` no eran correctos para esta versión.
+
+5.  **Corrección de `verify.py` (Intento 2 - Basado en Búsqueda Web):**
+    *   Se realizó una búsqueda web para "vertexai get project and location python client library".
+    *   Se descubrió que la forma correcta era `aiplatform.initializer.global_config.project` y `aiplatform.initializer.global_config.location` tras importar `aiplatform` de `google.cloud`.
+    *   Se modificó `verify.py` para incluir `from google.cloud import aiplatform` y usar `aiplatform.initializer.global_config.project` y `aiplatform.initializer.global_config.location`.
+    *   Se ejecutó `verify.py` nuevamente, y esta vez la conexión fue exitosa, mostrando el `Proyecto: project-e39adeb8-84bb-408c-b26` y `Ubicación: us-central1`.
+
+6.  **Configuración de `gemini-cli` para usar ADC:**
+    *   Se consultó la ayuda de `cli_help` para configurar `gemini-cli` con ADC.
+    *   Se estableció la variable de entorno `GOOGLE_CLOUD_PROJECT` a "project-e39adeb8-84bb-408c-b26".
+    *   Se estableció la variable de entorno `GOOGLE_CLOUD_LOCATION` a "us-central1".
+    *   Se eliminaron posibles variables de entorno de clave de API en conflicto (`unset GOOGLE_API_KEY GEMINI_API_KEY`).
+
+7.  **Instrucción Final para el Usuario:**
+    *   Se instruyó al usuario para reiniciar `gemini-cli` y seleccionar "Vertex AI" como método de autenticación cuando se le solicite, ya que esto forzaría a la CLI a reevaluar su entorno.

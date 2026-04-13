@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.casthor'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.casthor"
+        minSdk 24
+        targetSdk 34
+        versionCode 4
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../casthor.keystore')
+            storePassword 'TU_CONTRASEÑA_AQUÍ'
+            keyAlias 'casthor_key'
+            keyPassword 'TU_CONTRASEÑA_AQUÍ'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    
+    // Versiones modernas que funcionan con el XML
+    implementation 'com.github.pedroSG94.RootEncoder:library:2.7.2'
+    implementation 'com.github.pedroSG94:RTSP-Server:1.4.1'
+    
+    // Kotlin y Corrutinas nativos (dejamos que las dependencias resuelvan las versiones correctas 2.x)
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android'
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#0D1117</color>
+    <color name="cardBackground">#161B22</color>
+    <color name="textPrimary">#E6EDF3</color>
+    <color name="textSecondary">#8B949E</color>
+    <color name="accent">#FF6B35</color>
+    <color name="accentDark">#E55A2B</color>
+    <color name="divider">#30363D</color>
+    <color name="logText">#7EE787</color>
+    <color name="logError">#FF7B72</color>
+    <color name="logWarning">#D29922</color>
+    <color name="logInfo">#58A6FF</color>
+    <color name="statusOn">#3FB950</color>
+    <color name="statusOff">#484F58</color>
+    <color name="mint">#50C878</color>
+    <color name="mintDark">#3DAF6C</color>
+</resources>

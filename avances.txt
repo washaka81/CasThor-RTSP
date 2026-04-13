@@ -1,0 +1,24 @@
+PROYECTO: CasThor Pro V1
+ESTADO: Fase V1 Alcanzada - Estabilización y UI Inmersiva
+FECHA: 13 de Abril, 2026
+
+LOGROS (DONE):
+- Branding Consolidado: Purga de referencias a "CastThor" (con 't') y "V3". Ahora es "CasThor Pro V1".
+- Interfaz Edge-to-Edge Total: Migración a `WindowInsetsController` (Android 11+) y uso de `FLAG_LAYOUT_NO_LIMITS` para inmersión absoluta en el Moto G85.
+- HUD Profesional en Landscape: Rediseño con barra lateral derecha transparente, controles agrupados (Play circular, Mute, Salir) y botones sincronizados.
+- Centrado Matemático y Video 16:9: Implementación de lógica de "Fill-to-Crop" centrada, eliminando bandas negras laterales al ignorar el aspecto físico 20:9 y priorizar el llenado del área útil.
+- Estabilización de Rotación: Eliminación de franjas negras persistentes al alternar entre Portrait y Landscape mediante la desactivación dinámica de `AppBarLayout.Behavior`.
+- Sincronización de Audio: Nuevo botón de Mute (icono de micrófono) añadido tanto en Preview (Portrait) como en Fullscreen, manteniendo el estado sincronizado en todo momento.
+- FPS y Configuración: Corrección del motor de codificación para respetar estrictamente los 25 FPS (u otros seleccionados) reiniciando el preview al iniciar el stream.
+- Audio CD Quality: Mejora a 128kbps, 44.1kHz con filtros activos de Echo Canceler y Noise Suppressor.
+- Cierre Seguro: Liberación inmediata de cámara en `onDestroy` para restaurar funciones del sistema (linterna).
+
+PENDIENTES (TODO / EN PROGRESO):
+- Pruebas Térmicas: Verificar estabilidad tras 30 minutos de transmisión continua a 1080p.
+- Soporte 2K: Validar empíricamente si el hardware del Moto G85 soporta 1440p reales de forma estable en RTSP.
+- Persistencia de FPS: Asegurar que la selección de FPS se guarde en SharedPreferences (implementado, pendiente de validación final por usuario).
+
+NOTAS TÉCNICAS:
+- La eliminación de `Behavior` en el `CoordinatorLayout` es vital para recuperar el espacio que la `Toolbar` reserva tras una rotación.
+- El escalado y desplazamiento (TranslationX/Y) permiten ajustar el "foco" del visor sin comprometer la resolución de salida del stream.
+- El modo `MATCH_PARENT` en el `SurfaceView` junto con el reseteo de `dimensionRatio` permite la inmersión total ignorando el notch.
