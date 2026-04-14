@@ -1,0 +1,1 @@
+Professional Android RTSP streaming camera application with surveillance-grade video encoding
