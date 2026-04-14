@@ -1,0 +1,33 @@
+CasThor RTSP transforms your Android device into a professional surveillance camera using RTSP streaming protocol.
+
+FEATURES:
+
+• Security Profile Streaming - Optimized for surveillance with 1-second GOP (I-Frame interval) for fast recovery during packet loss
+• Dual-Stream HUD - Professional On-Screen Display showing both MAIN (/stream) and SUB (/live) channels with real-time IP updates
+• Hardware FPS Enforcement - Guarantees precise frame rates by explicitly restarting the camera sensor
+• Edge-to-Edge UI - Immersive landscape mode utilizing full screen space without black bars
+• Stealth Mode - One-tap screen brightness reduction (5%) to save battery and reduce visibility during continuous recording
+• High-Quality Audio - Transmits at 44.1kHz, 128kbps with Echo Cancellation and Noise Suppression
+• Persistent Configuration - Remembers stream settings (Resolution, FPS, Port, Credentials) across sessions
+• Security Hardened - Audited to prevent plain-text credential extraction via ADB backups
+
+STREAM FORMATS:
+
+• Main Stream (High Quality): rtsp://[user]:[pass]@[ip]:[port]/stream
+• Sub Stream (Low Latency): rtsp://[user]:[pass]@[ip]:[port]/live
+
+Connect using VLC Media Player, OBS Studio, or any RTSP-compatible client (NVR systems, etc).
+
+SUPPORTED CODECS:
+
+• H.264 (Recommended)
+• H.265/HEVC
+• MPEG-4 SP
+
+REQUIREMENTS:
+
+• Android 7.0 (API 24) or higher
+• Camera with hardware video encoding support
+• Network connectivity (WiFi or mobile data)
+
+All source code is open-source and licensed under GPL-3.0.
