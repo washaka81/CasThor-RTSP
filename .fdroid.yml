@@ -1,0 +1,14 @@
+builds:
+  - versionName: '1.0.0'
+    versionCode: 4
+    commit: main
+    gradle:
+      - yes
+    srclibs:
+      - RootEncoder@v2.7.2
+      - RTSP-Server@v1.4.1
+
+allowPrerelease: false
+autoUpdateMode: None
+currentVersion: '1.0.0'
+currentVersionCode: 4
