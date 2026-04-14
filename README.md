@@ -16,7 +16,7 @@
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/YOUR_USERNAME/CasThor-RTSP.git
+    git clone https://github.com/washaka81/CasThor-RTSP.git
     ```
 2.  Open the project in **Android Studio** (Koala or newer recommended).
 3.  Ensure you have the Android SDK 34 installed.
