@@ -1,41 +1,47 @@
-# CastThor - RTSP Camera Streamer
+# CasThor RTSP 🦫⚡
 
-Android app that transforms your phone into an RTSP server to stream your camera.
+**CasThor RTSP V1.1 (Security Edition)** is a professional, immersive, edge-to-edge Android RTSP streaming application optimized for modern devices (like the Moto G85). It transforms your Android device into a high-performance, dual-stream security camera.
 
-## Features
+## 🚀 Features
 
-- **RTSP Server** - Streams your camera live over the network
-- **Codec Selection** - H.264, H.265/HEVC, MPEG-4 SP
-- **Resolution Options** - VGA, HD, Full HD
-- **Custom Port** - Configurable (default: 8554)
-- **Live Logs** - Real-time connection and transfer logs
-- **Stats** - Connected clients + data sent
-- **Camera Preview** - See what's being streamed
-- **Dark Theme** - Clean and easy on the eyes
+*   **Security Profile Streaming:** Optimized for surveillance with a GOP (I-Frame interval) of 1 second for fast recovery during packet loss.
+*   **Dual-Stream HUD:** Professional On-Screen Display showing both MAIN (`/stream`) and SUB (`/live`) channels with real-time IP updates.
+*   **Hardware FPS Enforcement:** Guarantees precise frame rates by explicitly restarting the camera sensor during stream initialization.
+*   **True Edge-to-Edge UI:** Immersive landscape mode utilizing `FLAG_LAYOUT_NO_LIMITS` for a seamless experience without black bars.
+*   **Stealth Mode / Dimmer:** One-tap screen brightness reduction (5%) to save battery and reduce visibility during continuous recording.
+*   **High-Quality Audio:** Transmits at 44.1kHz, 128kbps with built-in Echo Cancellation and Noise Suppression (toggled via hardware mute).
+*   **Persistent Configuration:** Remembers your stream settings (Resolution, FPS, Port, Credentials) across sessions.
 
-## Build
+## 🛠️ Build Instructions
 
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/CasThor-RTSP.git
+    ```
+2.  Open the project in **Android Studio** (Koala or newer recommended).
+3.  Ensure you have the Android SDK 34 installed.
+4.  Build and run the project on your device:
+    ```bash
+    ./gradlew assembleDebug
+    ```
+
+### Release Signing
+To build the signed release version, ensure you have generated your `casthor.keystore` and placed it in the root directory. Update the `app/build.gradle` file with your specific keystore passwords, then run:
 ```bash
-cd CastThor
-./gradlew assembleDebug
+./gradlew assembleRelease
 ```
 
-APK at: `app/build/outputs/apk/debug/app-debug.apk`
+## 📡 Usage (VLC / NVR)
 
-## Usage
+Once the app is running and broadcasting, you can connect to the streams using any RTSP-compatible client (like VLC Media Player, OBS Studio, or a hardware NVR).
 
-1. Open the app, grant camera permissions
-2. Pick codec, resolution, port
-3. Tap **Iniciar servidor**
-4. Copy the RTSP URL
-5. Open in VLC: `rtsp://YOUR_IP:8554/stream`
+*   **Main Stream (High Quality):** `rtsp://[user]:[pass]@[ip]:[port]/stream`
+*   **Sub Stream (Low Latency):** `rtsp://[user]:[pass]@[ip]:[port]/live`
 
-## Connect from VLC
+*Example:* `rtsp://admin:1234@192.168.1.100:8554/stream`
 
-Media > Open Network Stream > paste URL
+## 🛡️ Security Audit
+This project has been audited to prevent plain-text credential extraction via ADB backups (`android:allowBackup="false"`).
 
-## Connect from FFmpeg
-
-```bash
-ffplay rtsp://YOUR_IP:8554/stream
-```
+---
+*Built with power, designed for security.*
