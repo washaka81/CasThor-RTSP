@@ -23,22 +23,24 @@
     <string-array name="codecs">
         <item>H.264 (Recomendado)</item>
         <item>H.265/HEVC</item>
-        <item>MPEG-4 SP</item>
     </string-array>
     
     <string-array name="codec_values">
         <item>h264</item>
         <item>h265</item>
-        <item>mpeg4</item>
     </string-array>
     
     <string-array name="resolutions">
-        <item>1280x720 (HD)</item>
+        <item>2560x1440 (2K)</item>
         <item>1920x1080 (Full HD)</item>
+        <item>1280x720 (HD)</item>
+        <item>854x480 (SD)</item>
     </string-array>
     
     <string-array name="resolution_values">
-        <item>1280x720</item>
+        <item>2560x1440</item>
         <item>1920x1080</item>
+        <item>1280x720</item>
+        <item>854x480</item>
     </string-array>
 </resources>

@@ -2,6 +2,13 @@ plugins {
     id 'com.android.application'
 }
 
+// Load keystore properties from ~/.android/keystore.properties (gitignored)
+def keystoreProps = new Properties()
+def keystorePropsFile = new File(System.getProperty("user.home") + "/.android/keystore.properties")
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(keystorePropsFile.newDataInputStream())
+}
+
 android {
     namespace 'com.casthor'
     compileSdk 34
@@ -16,17 +23,17 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('../casthor.keystore')
-            storePassword 'TU_CONTRASEÑA_AQUÍ'
-            keyAlias 'casthor_key'
-            keyPassword 'TU_CONTRASEÑA_AQUÍ'
+            storeFile file(keystoreProps.getProperty('storeFile', System.getenv("KEYSTORE_PATH") ?: '../casthor.keystore'))
+            storePassword keystoreProps.getProperty('storePassword', System.getenv("KEYSTORE_STORE_PASSWORD") ?: '')
+            keyAlias keystoreProps.getProperty('keyAlias', System.getenv("KEYSTORE_KEY_ALIAS") ?: 'casthor_key')
+            keyPassword keystoreProps.getProperty('keyPassword', System.getenv("KEYSTORE_KEY_PASSWORD") ?: '')
         }
     }
 
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -37,16 +44,12 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.11.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     
-    // Versiones modernas que funcionan con el XML
     implementation 'com.github.pedroSG94.RootEncoder:library:2.7.2'
     implementation 'com.github.pedroSG94:RTSP-Server:1.4.1'
     
-    // Kotlin y Corrutinas nativos (dejamos que las dependencias resuelvan las versiones correctas 2.x)
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android'
+
 }

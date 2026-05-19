@@ -1,6 +1,7 @@
-echo "*.keystore" > .gitignore
-echo ".gradle/" >> .gitignore
-echo "app/build/" >> .gitignore
-echo ".idea/" >> .gitignore
-echo "*.iml" >> .gitignore
-echo "*.env" >> .gitignore
+*.keystore
+.gradle/
+app/build/
+.idea/
+*.iml
+*.env
+.aider.*

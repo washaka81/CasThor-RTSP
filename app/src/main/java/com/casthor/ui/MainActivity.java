@@ -2,31 +2,31 @@ package com.casthor.ui;
 
 import android.Manifest;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.view.View;
+import android.util.Log;
 import android.view.SurfaceHolder;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.EditText;
-import com.google.android.material.textfield.TextInputEditText;
-import android.content.SharedPreferences;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import android.widget.ArrayAdapter;
+import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -34,11 +34,15 @@ import com.casthor.R;
 import com.casthor.server.RtspServerService;
 import com.casthor.utils.NetworkUtils;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.pedro.library.view.OpenGlView;
 
 public class MainActivity extends AppCompatActivity implements RtspServerService.LogListener, SurfaceHolder.Callback {
 
     private static final String APP_VERSION = "V1.1";
+    private static final String KEY_BRIGHTNESS_DIM = "brightness_dim";
+
     private RtspServerService rtspService;
     private boolean isBound = false;
     private OpenGlView surfaceView;
@@ -53,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
     private Spinner spinnerResolution, spinnerCodec, spinnerFps;
     private TextInputEditText etUser, etPass, etPort;
     private SharedPreferences prefs;
-    private com.google.android.material.floatingactionbutton.FloatingActionButton btnFullscreenToggle, btnExitFs, btnMute, btnBrightness;
+    private FloatingActionButton btnFullscreenToggle, btnExitFs, btnMute, btnBrightness;
     private boolean isDimmed = false;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -62,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
             rtspService = ((RtspServerService.LocalBinder) service).getService();
             isBound = true;
             rtspService.addLogListener(MainActivity.this);
-            // Si la superficie ya está lista, la seteamos de inmediato
             if (surfaceView.getHolder().getSurface().isValid()) {
                 rtspService.setView(surfaceView);
                 if (hasPermissions()) rtspService.startPreview();
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
         setContentView(R.layout.activity_main);
 
         prefs = getSharedPreferences("CastThorPrefs", MODE_PRIVATE);
+        isDimmed = prefs.getBoolean(KEY_BRIGHTNESS_DIM, false);
 
         if (getSupportActionBar() != null) getSupportActionBar().setTitle("CasThor RTSP");
         
@@ -103,11 +107,18 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
 
         btnBrightness.setOnClickListener(v -> {
             isDimmed = !isDimmed;
-            android.view.WindowManager.LayoutParams lp = getWindow().getAttributes();
-            lp.screenBrightness = isDimmed ? 0.05f : -1.0f; // 5% brillo o restaurar sistema
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.screenBrightness = isDimmed ? 0.05f : -1.0f;
             getWindow().setAttributes(lp);
             btnBrightness.setSupportImageTintList(ContextCompat.getColorStateList(this, isDimmed ? android.R.color.holo_orange_light : android.R.color.white));
+            prefs.edit().putBoolean(KEY_BRIGHTNESS_DIM, isDimmed).apply();
         });
+
+        if (isDimmed) {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.screenBrightness = 0.05f;
+            getWindow().setAttributes(lp);
+        }
 
         btnMute.setOnClickListener(v -> {
             if (isBound && rtspService != null) {
@@ -124,23 +135,21 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
         etPass = findViewById(R.id.etPass);
         etPort = findViewById(R.id.etPort);
 
-        // Setup Spinners
-        ArrayAdapter<String> resAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{"1440p", "1080p", "720p", "480p"});
+        ArrayAdapter<CharSequence> resAdapter = ArrayAdapter.createFromResource(this, R.array.resolutions, android.R.layout.simple_spinner_dropdown_item);
         spinnerResolution.setAdapter(resAdapter);
-        ArrayAdapter<String> codecAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{"H264", "H265"});
+        ArrayAdapter<CharSequence> codecAdapter = ArrayAdapter.createFromResource(this, R.array.codecs, android.R.layout.simple_spinner_dropdown_item);
         spinnerCodec.setAdapter(codecAdapter);
         ArrayAdapter<String> fpsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, new String[]{"15 FPS", "25 FPS", "30 FPS", "60 FPS"});
         spinnerFps.setAdapter(fpsAdapter);
 
-        // Load saved selections
-        spinnerResolution.setSelection(prefs.getInt("last_resolution", 1)); // Default 1080p
-        spinnerCodec.setSelection(prefs.getInt("last_codec", 0)); // Default H264
-        spinnerFps.setSelection(prefs.getInt("last_fps", 2)); // Default 30 FPS (ahora es índice 2)
+        // Load saved selections BEFORE setting listener to avoid unwanted writes
+        spinnerResolution.setSelection(prefs.getInt("last_resolution", 1));
+        spinnerCodec.setSelection(prefs.getInt("last_codec", 0));
+        spinnerFps.setSelection(prefs.getInt("last_fps", 2));
         etUser.setText(prefs.getString("last_user", ""));
         etPass.setText(prefs.getString("last_pass", ""));
         etPort.setText(prefs.getString("last_port", "8554"));
 
-        // Save selections on change
         AdapterView.OnItemSelectedListener saveListener = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -161,38 +170,42 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
             updateUi(wasRunning);
         }
 
-        btnStream.setOnClickListener(v -> {
-            toggleStream();
-        });
-
-        btnStreamFs.setOnClickListener(v -> {
-            toggleStream();
-        });
-
-        btnFullscreenToggle.setOnClickListener(v -> {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        });
-
-        btnExitFs.setOnClickListener(v -> {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        });
+        btnStream.setOnClickListener(v -> toggleStream());
+        btnStreamFs.setOnClickListener(v -> toggleStream());
+        btnFullscreenToggle.setOnClickListener(v -> setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE));
+        btnExitFs.setOnClickListener(v -> setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
 
         findViewById(R.id.kofiButton).setOnClickListener(v -> {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://ko-fi.com/washaka81")));
         });
 
-        Intent intent = new Intent(this, RtspServerService.class);
-        startForegroundService(intent);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        if (hasPermissions()) {
+            startRtspService();
+        } else {
+            requestPermissions();
+        }
         
-        // Configuración para permitir dibujo en la zona del Notch/Cámara (Moto G85)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            android.view.WindowManager.LayoutParams lp = getWindow().getAttributes();
-            lp.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
             getWindow().setAttributes(lp);
         }
         
         updateFullscreenMode(getResources().getConfiguration().orientation);
+    }
+
+    private String buildRtspUrl() {
+        String ip = NetworkUtils.getIPAddress();
+        String port = etPort.getText().toString().trim();
+        String user = etUser.getText().toString().trim();
+        String pass = etPass.getText().toString();
+
+        StringBuilder url = new StringBuilder("rtsp://");
+        if (!user.isEmpty() && !pass.isEmpty()) {
+            url.append(user).append(":").append(pass).append("@");
+        }
+        url.append(ip).append(":").append(port);
+        return url.toString();
     }
 
     private void updateMuteButtons(boolean muted) {
@@ -204,7 +217,12 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
     }
 
     private void toggleStream() {
-        if (!isBound) return;
+        if (!isBound) {
+            if (hasPermissions()) {
+                startRtspService();
+            }
+            return;
+        }
         if (rtspService.isRunning()) {
             rtspService.stopServer();
         } else if (hasPermissions()) {
@@ -215,16 +233,16 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
             String pass = etPass.getText().toString();
             String portStr = etPort.getText().toString().trim();
             int port = 8554;
-            try { port = Integer.parseInt(portStr); } catch (Exception e) {}
+            try { port = Integer.parseInt(portStr); }
+            catch (NumberFormatException e) { Log.w("CastThor", "Invalid port number, using default", e); }
             
-            // Save auth and port
             prefs.edit()
                 .putString("last_user", user)
                 .putString("last_pass", pass)
                 .putString("last_port", String.valueOf(port))
                 .apply();
             
-            int width = 2560, height = 1440; // 1440p default for index 0
+            int width = 2560, height = 1440;
             if (resSelection == 1) { width = 1920; height = 1080; }
             else if (resSelection == 2) { width = 1280; height = 720; }
             else if (resSelection == 3) { width = 854; height = 480; }
@@ -252,143 +270,133 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
         }
     }
 
-    private void updateFullscreenMode(int orientation) {
-        if (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-            // Activar Fullscreen Extremo
-            if (getSupportActionBar() != null) getSupportActionBar().hide();
-            if (appBarLayout != null) appBarLayout.setVisibility(View.GONE);
-            if (controlsContainer != null) controlsContainer.setVisibility(View.GONE);
-            if (portraitControls != null) portraitControls.setVisibility(View.GONE);
-            btnFullscreenToggle.setVisibility(View.GONE);
-            btnExitFs.setVisibility(View.VISIBLE);
-            hudOverlay.setVisibility(View.VISIBLE);
-            btnStreamFs.setVisibility(View.VISIBLE);
-            
-            // Eliminar límites de ventana y padding
-            getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-            getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            
-            // Re-aplicar modo Cutout para asegurar inmersión tras rotación
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                android.view.WindowManager.LayoutParams wlp = getWindow().getAttributes();
-                wlp.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-                getWindow().setAttributes(wlp);
-            }
-            
-            if (mainContent != null) {
-                mainContent.setPadding(0, 0, 0, 0);
-                androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams lp = 
-                    (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) mainContent.getLayoutParams();
-                lp.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-                lp.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-                lp.setBehavior(null); // ELIMINAR COMPORTAMIENTO: Evita que el AppBar reserve espacio (franja negra)
-                mainContent.setLayoutParams(lp);
-            }
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                getWindow().setDecorFitsSystemWindows(false);
-                android.view.WindowInsetsController controller = getWindow().getInsetsController();
-                if (controller != null) {
-                    controller.hide(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
-                    controller.setSystemBarsBehavior(android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-                }
-            } else {
-                getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN);
-            }
-                
-            // Llenar pantalla TOTAL ignorando Notch y Safe Areas
-            androidx.constraintlayout.widget.ConstraintLayout.LayoutParams params = 
-                (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) surfaceView.getLayoutParams();
-            params.dimensionRatio = null;
-            params.width = 0; // Match Constraint
-            params.height = 0; // Match Constraint
-            params.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
-            params.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
-            params.startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
-            params.endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
-            surfaceView.setLayoutParams(params);
-            
-            // Reset de transformaciones para un calce perfecto y limpio
-            surfaceView.setScaleX(1.0f); 
-            surfaceView.setScaleY(1.0f);
-            surfaceView.setTranslationX(0f);
-            surfaceView.setTranslationY(0f); 
-        } else {
-            // Modo Vertical (Portrait)
-            if (getSupportActionBar() != null) getSupportActionBar().show();
-            if (appBarLayout != null) appBarLayout.setVisibility(View.VISIBLE);
-            if (controlsContainer != null) controlsContainer.setVisibility(View.VISIBLE);
-            if (portraitControls != null) portraitControls.setVisibility(View.VISIBLE);
-            btnFullscreenToggle.setVisibility(View.VISIBLE);
-            btnExitFs.setVisibility(View.GONE);
-            
-            // Restaurar Ventana
-            getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-            getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            
-            if (mainContent != null) {
-                androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams lp = 
-                    (androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams) mainContent.getLayoutParams();
-                lp.height = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-                lp.width = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-                lp.setBehavior(new com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior()); // RESTAURAR COMPORTAMIENTO
-                mainContent.setLayoutParams(lp);
-                
-                int p = (int) (12 * getResources().getDisplayMetrics().density);
-                mainContent.setPadding(p, p, p, p);
-            }
-            
-            if (isBound && rtspService != null) {
-                hudOverlay.setVisibility(rtspService.isRunning() ? View.VISIBLE : View.GONE);
-            }
-            btnStreamFs.setVisibility(View.GONE);
-            
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                getWindow().setDecorFitsSystemWindows(true);
-                android.view.WindowInsetsController controller = getWindow().getInsetsController();
-                if (controller != null) {
-                    controller.show(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
-                }
-            } else {
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-            }
-            
-            // Maximizar preview en vertical
-            androidx.constraintlayout.widget.ConstraintLayout.LayoutParams params = 
-                (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) surfaceView.getLayoutParams();
-            params.dimensionRatio = null;
-            params.width = 0;
-            params.height = 0;
-            surfaceView.setLayoutParams(params);
-            
-            surfaceView.setScaleX(1.0f);
-            surfaceView.setScaleY(1.0f);
-            surfaceView.setTranslationX(0f);
-            surfaceView.setTranslationY(0f);
+    private void enterLandscapeMode() {
+        if (getSupportActionBar() != null) getSupportActionBar().hide();
+        if (appBarLayout != null) appBarLayout.setVisibility(View.GONE);
+        if (controlsContainer != null) controlsContainer.setVisibility(View.GONE);
+        if (portraitControls != null) portraitControls.setVisibility(View.GONE);
+        btnFullscreenToggle.setVisibility(View.GONE);
+        btnExitFs.setVisibility(View.VISIBLE);
+        hudOverlay.setVisibility(View.VISIBLE);
+        btnStreamFs.setVisibility(View.VISIBLE);
+        
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams wlp = getWindow().getAttributes();
+            wlp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            getWindow().setAttributes(wlp);
         }
         
-        // RE-ESTABILIZACIÓN EN CASCADA:
-        // Realizamos múltiples refrescos para asegurar que el motor OpenGL "calce" con las nuevas dimensiones
+        if (mainContent != null) {
+            mainContent.setPadding(0, 0, 0, 0);
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mainContent.getLayoutParams();
+            lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            lp.setBehavior(null);
+            mainContent.setLayoutParams(lp);
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+            android.view.WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.hide(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
+                controller.setSystemBarsBehavior(android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
+            
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) surfaceView.getLayoutParams();
+        params.dimensionRatio = null;
+        params.width = 0;
+        params.height = 0;
+        params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+        surfaceView.setLayoutParams(params);
         
-        // 1. Refresco cuando el layout esté listo (evita el error de replaceView)
+        surfaceView.setScaleX(1.0f); 
+        surfaceView.setScaleY(1.0f);
+        surfaceView.setTranslationX(0f);
+        surfaceView.setTranslationY(0f);
+    }
+
+    private void enterPortraitMode() {
+        if (getSupportActionBar() != null) getSupportActionBar().show();
+        if (appBarLayout != null) appBarLayout.setVisibility(View.VISIBLE);
+        if (controlsContainer != null) controlsContainer.setVisibility(View.VISIBLE);
+        if (portraitControls != null) portraitControls.setVisibility(View.VISIBLE);
+        btnFullscreenToggle.setVisibility(View.VISIBLE);
+        btnExitFs.setVisibility(View.GONE);
+        
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
+        if (mainContent != null) {
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mainContent.getLayoutParams();
+            lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            lp.setBehavior(new com.google.android.material.appbar.AppBarLayout.ScrollingViewBehavior());
+            mainContent.setLayoutParams(lp);
+            
+            int p = (int) (12 * getResources().getDisplayMetrics().density);
+            mainContent.setPadding(p, p, p, p);
+        }
+        
+        if (isBound && rtspService != null) {
+            hudOverlay.setVisibility(rtspService.isRunning() ? View.VISIBLE : View.GONE);
+        }
+        btnStreamFs.setVisibility(View.GONE);
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(true);
+            android.view.WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.show(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
+            }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
+        
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) surfaceView.getLayoutParams();
+        params.dimensionRatio = null;
+        params.width = 0;
+        params.height = 0;
+        surfaceView.setLayoutParams(params);
+        
+        surfaceView.setScaleX(1.0f);
+        surfaceView.setScaleY(1.0f);
+        surfaceView.setTranslationX(0f);
+        surfaceView.setTranslationY(0f);
+    }
+
+    private void updateFullscreenMode(int orientation) {
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            enterLandscapeMode();
+        } else {
+            enterPortraitMode();
+        }
+        
         surfaceView.post(() -> {
             if (isBound && rtspService != null) rtspService.setView(surfaceView);
         });
 
-        // 2. Refresco a los 500ms (cuando la animación de Android suele terminar)
         surfaceView.postDelayed(() -> {
             if (isBound && rtspService != null) {
                 rtspService.setView(surfaceView);
             }
         }, 500);
 
-        // 3. Refresco definitivo a los 1000ms (Estabilización absoluta del sensor)
         surfaceView.postDelayed(() -> {
             surfaceView.requestLayout();
             if (isBound && rtspService != null) {
@@ -398,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull android.content.res.Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         updateFullscreenMode(newConfig.orientation);
     }
@@ -412,31 +420,26 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
     }
 
     @Override public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-        // Nada que hacer aquí, pero el método es obligatorio.
     }
 
     @Override public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-        // No llamamos a setView(null) para evitar crashes y cortes de video durante la rotación.
-        // El OpenGlView gestiona su propio ciclo de vida de superficie.
     }
 
     private void updateUi(boolean running) {
         runOnUiThread(() -> {
             btnStream.setText(running ? "STOP STREAM" : "START STREAM");
-            btnStream.setTextColor(Color.WHITE); // Texto blanco forzado
+            btnStream.setTextColor(Color.WHITE);
             btnStream.setIconResource(running ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
             btnStream.setIconTint(ContextCompat.getColorStateList(this, android.R.color.white));
             btnStream.setBackgroundTintList(ContextCompat.getColorStateList(this, running ? android.R.color.holo_orange_dark : android.R.color.holo_red_dark));
             
-            // Sincronizar botón de Fullscreen (Circular, sin texto, icono blanco)
             btnStreamFs.setText(""); 
             btnStreamFs.setIconResource(running ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
             btnStreamFs.setBackgroundTintList(ContextCompat.getColorStateList(this, running ? android.R.color.holo_orange_dark : android.R.color.holo_red_dark));
 
-            // Bloqueo de rotación durante el stream
             if (running) {
                 int currentOrientation = getResources().getConfiguration().orientation;
-                if (currentOrientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+                if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 } else {
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -445,7 +448,6 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
 
-            // Bloqueo total de funciones
             spinnerResolution.setEnabled(!running);
             spinnerCodec.setEnabled(!running);
             spinnerFps.setEnabled(!running);
@@ -453,52 +455,30 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
             etPass.setEnabled(!running);
             etPort.setEnabled(!running);
             
-            // Ocultamos botones de fullscreen durante el stream para evitar accidentes
             btnFullscreenToggle.setVisibility(running ? View.GONE : View.VISIBLE);
-            btnExitFs.setVisibility((!running && getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) ? View.VISIBLE : View.GONE);
+            btnExitFs.setVisibility((!running && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ? View.VISIBLE : View.GONE);
             
-            // El HUD permanece visible en Landscape (Fullscreen) siempre. 
-            // En Portrait solo se muestra si está corriendo el stream.
-            if (getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 hudOverlay.setVisibility(View.VISIBLE);
                 btnStreamFs.setVisibility(View.VISIBLE);
-                
-                // Actualizar URL de info siempre en landscape para evitar "localhost"
-                String ip = NetworkUtils.getIPAddress();
-                String port = etPort.getText().toString().trim();
-                String user = etUser.getText().toString().trim();
-                String pass = etPass.getText().toString();
-                
-                StringBuilder baseUrl = new StringBuilder("rtsp://");
-                if (!user.isEmpty() && !pass.isEmpty()) {
-                    baseUrl.append(user).append(":").append(pass).append("@");
-                }
-                baseUrl.append(ip).append(":").append(port);
-                
-                hudUrl.setText("MAIN: " + baseUrl.toString() + "/stream");
-                hudUrlSub.setText("SUB:  " + baseUrl.toString() + "/live");
+                updateHudUrls();
             } else {
                 hudOverlay.setVisibility(running ? View.VISIBLE : View.GONE);
                 btnStreamFs.setVisibility(View.GONE);
             }
 
             if (running) {
-                String user = etUser.getText().toString().trim();
-                String pass = etPass.getText().toString();
-                String port = etPort.getText().toString().trim();
-                String ip = NetworkUtils.getIPAddress();
-                
-                StringBuilder baseUrl = new StringBuilder("rtsp://");
-                if (!user.isEmpty() && !pass.isEmpty()) {
-                    baseUrl.append(user).append(":").append(pass).append("@");
-                }
-                baseUrl.append(ip).append(":").append(port);
-                
-                hudUrl.setText("MAIN: " + baseUrl.toString() + "/stream");
-                hudUrlSub.setText("SUB:  " + baseUrl.toString() + "/live");
+                updateHudUrls();
             }
         });
     }
+
+    private void updateHudUrls() {
+        String baseUrl = buildRtspUrl();
+        hudUrl.setText("MAIN: " + baseUrl + "/stream");
+        hudUrlSub.setText("SUB:  " + baseUrl + "/live");
+    }
+
     @Override
     public void onNewLog(String message, boolean isError) {
         runOnUiThread(() -> {
@@ -509,7 +489,6 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
 
     @Override public void onStatusChanged(boolean running) { updateUi(running); }
     @Override public void onStatsUpdate(int clients, long bitrate) {
-        // Estadísticas eliminadas
     }
 
     private boolean hasPermissions() {
@@ -519,6 +498,20 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
 
     private void requestPermissions() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, 1);
+    }
+
+    private void startRtspService() {
+        Intent intent = new Intent(this, RtspServerService.class);
+        startForegroundService(intent);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startRtspService();
+        }
     }
 
     @Override

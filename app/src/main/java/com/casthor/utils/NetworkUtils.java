@@ -1,5 +1,7 @@
 package com.casthor.utils;
 
+import android.util.Log;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -19,7 +21,9 @@ public class NetworkUtils {
                     }
                 }
             }
-        } catch (Exception ignored) { }
+        } catch (Exception e) {
+            Log.w("CastThor", "Failed to get IP address", e);
+        }
         return "127.0.0.1";
     }
 }

@@ -1,6 +1,6 @@
 PROYECTO: CasThor Pro V1
-ESTADO: Fase V1 Alcanzada - Estabilización y UI Inmersiva
-FECHA: 13 de Abril, 2026
+ESTADO: Fase V1 Alcanzada - Housekeeping y Limpieza
+FECHA: 18 de Mayo, 2026
 
 LOGROS (DONE):
 - Branding Consolidado: Purga de referencias a "CastThor" (con 't') y "V3". Ahora es "CasThor Pro V1".
@@ -13,10 +13,18 @@ LOGROS (DONE):
 - Audio CD Quality: Mejora a 128kbps, 44.1kHz con filtros activos de Echo Canceler y Noise Suppressor.
 - Cierre Seguro: Liberación inmediata de cámara en `onDestroy` para restaurar funciones del sistema (linterna).
 
-PENDIENTES (TODO / EN PROGRESO):
+LOGROS RECIENTES (Housekeeping 18/05):
+- .gitignore reparado: contenía comandos shell en vez de patrones reales.
+- strings.xml sincronizado: codecs (3→2 items), resolutions (2→4 items) ahora coinciden con el código Java.
+- Layout limpiado: LinearLayout izquierdo vacío (visibility="gone") eliminado de activity_main.xml.
+- AGENTS.md actualizado: referencias .kt→.java, eliminadas referencias a CameraX, MultiDex, NetworkMonitor (inexistentes).
+- build.gradle simplificado: plugin Kotlin y dependencias Kotlin/coroutines eliminados (cero archivos .kt en el proyecto).
+- Stubs con logging: onConnectionStarted, onAuthError, onAuthSuccess ahora registran actividad en el log.
+
+PENDIENTES (TODO):
 - Pruebas Térmicas: Verificar estabilidad tras 30 minutos de transmisión continua a 1080p.
 - Soporte 2K: Validar empíricamente si el hardware del Moto G85 soporta 1440p reales de forma estable en RTSP.
-- Persistencia de FPS: Asegurar que la selección de FPS se guarde en SharedPreferences (implementado, pendiente de validación final por usuario).
+- Persistencia de FPS: Validación final por usuario.
 
 NOTAS TÉCNICAS:
 - La eliminación de `Behavior` en el `CoordinatorLayout` es vital para recuperar el espacio que la `Toolbar` reserva tras una rotación.
