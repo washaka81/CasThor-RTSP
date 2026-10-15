@@ -1,0 +1,1 @@
+CasThor RTSP 1.0.0: dual-stream RTSP (/stream, /live), security GOP 1s, hardware FPS lock, stealth mode, 44.1kHz audio.

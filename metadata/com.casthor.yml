@@ -1,0 +1,26 @@
+Categories:
+  - Multimedia
+  - Security
+License: GPL-3.0-or-later
+AuthorName: washaka81
+WebSite: https://github.com/washaka81/CasThor-RTSP
+SourceCode: https://github.com/washaka81/CasThor-RTSP
+IssueTracker: https://github.com/washaka81/CasThor-RTSP/issues
+Changelog: https://github.com/washaka81/CasThor-RTSP/releases
+Translation: https://github.com/washaka81/CasThor-RTSP
+
+RepoType: git
+Repo: https://github.com/washaka81/CasThor-RTSP.git
+
+Builds:
+  - versionName: 1.0.0
+    versionCode: 4
+    commit: v1.0.0
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: 1.0.0
+CurrentVersionCode: 4
