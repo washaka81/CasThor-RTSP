@@ -13,14 +13,14 @@ RepoType: git
 Repo: https://github.com/washaka81/CasThor-RTSP.git
 
 Builds:
-  - versionName: 1.0.0
-    versionCode: 4
-    commit: 2efc2b787798cc0a7bb7a9a274e830de0bb8a3ec
+  - versionName: 1.0.1
+    versionCode: 5
+    commit: f6fb9583931bacb47f77ffbbfdce9a547968ff68
     subdir: app
     gradle:
       - yes
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: 1.0.0
-CurrentVersionCode: 4
+CurrentVersion: 1.0.1
+CurrentVersionCode: 5
