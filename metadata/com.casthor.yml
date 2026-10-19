@@ -6,21 +6,71 @@ AuthorName: washaka81
 WebSite: https://github.com/washaka81/CasThor-RTSP
 SourceCode: https://github.com/washaka81/CasThor-RTSP
 IssueTracker: https://github.com/washaka81/CasThor-RTSP/issues
-Changelog: https://github.com/washaka81/CasThor-RTSP/releases
 Translation: https://github.com/washaka81/CasThor-RTSP
+Changelog: https://github.com/washaka81/CasThor-RTSP/releases
+
+Summary: Turn your phone into an RTSP surveillance camera
+Description: |-
+  CasThor RTSP transforms your Android device into a professional surveillance camera using RTSP streaming protocol.
+
+  FEATURES:
+  - Security Profile Streaming - 1-second GOP for fast recovery during packet loss
+  - Dual-Stream HUD - On-Screen Display for MAIN (/stream) and SUB (/live) channels
+  - Hardware FPS Enforcement - Precise frame rates via camera sensor restart
+  - Edge-to-Edge UI - Immersive landscape mode with full screen utilization
+  - Stealth Mode - One-tap brightness reduction to save battery
+  - High-Quality Audio - 44.1kHz, 128kbps with echo cancellation and noise suppression
+  - Persistent Configuration - Remembers stream settings across sessions
+  - Security Hardened - Prevents credential extraction via ADB backups; RTSP credentials are never written to disk
+
+  STREAM FORMATS:
+  - Main Stream: rtsp://[user]:[pass]@[ip]:[port]/stream
+  - Sub Stream: rtsp://[user]:[pass]@[ip]:[port]/live
+
+  Connect using VLC, OBS Studio, or any RTSP-compatible client.
+
+  SUPPORTED CODECS: H.264, H.265/HEVC
+
+  REQUIREMENTS: Android 7.0+ with camera and hardware video encoding support.
+
+  All source code is open-source and licensed under GPL-3.0.
 
 RepoType: git
 Repo: https://github.com/washaka81/CasThor-RTSP.git
 
 Builds:
-  - versionName: 1.0.1
-    versionCode: 5
-    commit: f6fb9583931bacb47f77ffbbfdce9a547968ff68
+  - versionName: 1.0.2
+    versionCode: 6
+    commit: 05497acef197fa856fe7d10785d5daac65839dcd
     subdir: app
     gradle:
       - yes
+    srclibs:
+      - RootEncoder@2.7.2
+      - RTSP-Server@1.4.1
+    prebuild:
+      - sed -i 's|^org.gradle.java.home|#org.gradle.java.home|' ../gradle.properties
+      - sed -i '/maven.*jitpack/a\        mavenLocal()' ../build.gradle
+      - sed -i 's|com.github.pedroSG94.RootEncoder:library:2.7.2|com.github.pedroSG94:library:2.7.2|'
+        build.gradle
+      - sed -i 's|com.github.pedroSG94:RTSP-Server:1.4.1|com.github.pedroSG94:rtspserver:1.4.1|'
+        build.gradle
+      - pushd $$RTSP-Server$$
+      - sed -i 's|com.github.pedroSG94.RootEncoder:library|com.github.pedroSG94:library|'
+        gradle/libs.versions.toml
+      - sed -i '/jitpack/a\            mavenLocal()' settings.gradle.kts
+      - popd
+      - pushd $$RootEncoder$$
+      - ./gradlew :library:publishToMavenLocal :encoder:publishToMavenLocal :rtmp:publishToMavenLocal
+        :rtsp:publishToMavenLocal :srt:publishToMavenLocal :udp:publishToMavenLocal
+        :common:publishToMavenLocal
+      - popd
+      - pushd $$RTSP-Server$$
+      - ./gradlew :rtspserver:publishToMavenLocal
+      - popd
+      - sed -i '/signingConfig /d' build.gradle
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: 1.0.1
-CurrentVersionCode: 5
+CurrentVersion: 1.0.2
+CurrentVersionCode: 6
