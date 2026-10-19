@@ -1,0 +1,1 @@
+CasThor RTSP 1.0.2: RTSP credentials are no longer stored on the device; the stream refuses to start with a user but no password instead of falling back to an unauthenticated stream. Notification permission is no longer required to preview or stream on Android 13+.

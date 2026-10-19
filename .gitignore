@@ -1,7 +1,26 @@
-*.keystore
+# Gradle
 .gradle/
+.gradle_old/
+.gradle_tmp/
 app/build/
+app/build_old/
+build/
+
+# IDE
 .idea/
 *.iml
+
+# Secrets / local
+*.keystore
 *.env
+local.properties
+
+# Session / tool artifacts
+SESSION_DOCUMENTATION.md
+.commandcode/
+.poolside/
+vertex-ai-projects/
+tmp/
+
+# Aider
 .aider.*

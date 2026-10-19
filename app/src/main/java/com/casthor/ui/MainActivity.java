@@ -40,8 +40,12 @@ import com.pedro.library.view.OpenGlView;
 
 public class MainActivity extends AppCompatActivity implements RtspServerService.LogListener, SurfaceHolder.Callback {
 
-    private static final String APP_VERSION = "V1.1";
+    private static final String APP_VERSION = "1.0.2";
     private static final String KEY_BRIGHTNESS_DIM = "brightness_dim";
+
+    private static final int REQ_PERMS_CORE = 1;
+    private static final int REQ_PERMS_NOTIFICATION = 2;
+    private boolean notificationPermissionAsked = false;
 
     private RtspServerService rtspService;
     private boolean isBound = false;
@@ -81,6 +85,10 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
         setContentView(R.layout.activity_main);
 
         prefs = getSharedPreferences("CastThorPrefs", MODE_PRIVATE);
+        // Remove any legacy plaintext password persisted in older versions
+        if (prefs.contains("last_pass")) {
+            prefs.edit().remove("last_pass").apply();
+        }
         isDimmed = prefs.getBoolean(KEY_BRIGHTNESS_DIM, false);
 
         if (getSupportActionBar() != null) getSupportActionBar().setTitle("CasThor RTSP");
@@ -147,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
         spinnerCodec.setSelection(prefs.getInt("last_codec", 0));
         spinnerFps.setSelection(prefs.getInt("last_fps", 2));
         etUser.setText(prefs.getString("last_user", ""));
-        etPass.setText(prefs.getString("last_pass", ""));
         etPort.setText(prefs.getString("last_port", "8554"));
 
         AdapterView.OnItemSelectedListener saveListener = new AdapterView.OnItemSelectedListener() {
@@ -181,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
 
         if (hasPermissions()) {
             startRtspService();
+            requestNotificationPermissionIfNeeded();
         } else {
             requestPermissions();
         }
@@ -235,10 +243,17 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
             int port = 8554;
             try { port = Integer.parseInt(portStr); }
             catch (NumberFormatException e) { Log.w("CastThor", "Invalid port number, using default", e); }
+
+            // The RTSP server only enforces authentication when BOTH user and password are
+            // set. A user without a password would silently publish an open stream on the
+            // LAN, so refuse to start instead of downgrading the security silently.
+            if (!user.isEmpty() && pass.isEmpty()) {
+                appendLog("ERROR: Authentication needs both user and password. Type the password or clear the user to stream without authentication.");
+                return;
+            }
             
             prefs.edit()
                 .putString("last_user", user)
-                .putString("last_pass", pass)
                 .putString("last_port", String.valueOf(port))
                 .apply();
             
@@ -479,25 +494,49 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
         hudUrlSub.setText("SUB:  " + baseUrl + "/live");
     }
 
-    @Override
-    public void onNewLog(String message, boolean isError) {
+    private void appendLog(String message) {
         runOnUiThread(() -> {
             logsText.append("\n" + message);
             logsScrollView.post(() -> logsScrollView.fullScroll(View.FOCUS_DOWN));
         });
     }
 
+    @Override
+    public void onNewLog(String message, boolean isError) {
+        appendLog(message);
+    }
+
     @Override public void onStatusChanged(boolean running) { updateUi(running); }
     @Override public void onStatsUpdate(int clients, long bitrate) {
     }
 
+    /**
+     * Core permissions only. POST_NOTIFICATIONS is deliberately NOT required here:
+     * it is not required to run a camera foreground service, so denying it must not
+     * prevent the preview or the RTSP stream from working.
+     */
     private boolean hasPermissions() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
                ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO}, 1);
+        java.util.List<String> perms = new java.util.ArrayList<>();
+        perms.add(Manifest.permission.CAMERA);
+        perms.add(Manifest.permission.RECORD_AUDIO);
+        ActivityCompat.requestPermissions(this, perms.toArray(new String[0]), REQ_PERMS_CORE);
+    }
+
+    /**
+     * Best effort request for POST_NOTIFICATIONS (Android 13+). Only affects whether the
+     * foreground service notification is visible in the shade, never the service itself.
+     */
+    private void requestNotificationPermissionIfNeeded() {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) return;
+        if (notificationPermissionAsked) return;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return;
+        notificationPermissionAsked = true;
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_PERMS_NOTIFICATION);
     }
 
     private void startRtspService() {
@@ -509,9 +548,13 @@ public class MainActivity extends AppCompatActivity implements RtspServerService
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startRtspService();
+        if (requestCode == REQ_PERMS_CORE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startRtspService();
+            }
+            requestNotificationPermissionIfNeeded();
         }
+        // REQ_PERMS_NOTIFICATION is purely cosmetic: the foreground service runs either way.
     }
 
     @Override

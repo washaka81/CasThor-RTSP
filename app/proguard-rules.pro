@@ -4,3 +4,4 @@
 -keep class com.pedro.library.** { *; }
 -dontwarn kotlin.**
 -dontwarn kotlinx.coroutines.**
+-dontwarn org.slf4j.impl.StaticLoggerBinder
