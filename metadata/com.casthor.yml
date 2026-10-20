@@ -15,17 +15,17 @@ Description: |-
 
   FEATURES:
   - Security Profile Streaming - 1-second GOP for fast recovery during packet loss
-  - Dual-Stream HUD - On-Screen Display for MAIN (/stream) and SUB (/live) channels
+  - On-Screen Display - Shows the live RTSP URL with real-time IP updates, ready to copy into VLC, OBS Studio or an NVR
   - Hardware FPS Enforcement - Precise frame rates via camera sensor restart
   - Edge-to-Edge UI - Immersive landscape mode with full screen utilization
   - Stealth Mode - One-tap brightness reduction to save battery
   - High-Quality Audio - 44.1kHz, 128kbps with echo cancellation and noise suppression
-  - Persistent Configuration - Remembers stream settings across sessions
+  - Persistent Configuration - Remembers stream settings (resolution, FPS, port) across sessions
   - Security Hardened - Prevents credential extraction via ADB backups; RTSP credentials are never written to disk
 
-  STREAM FORMATS:
-  - Main Stream: rtsp://[user]:[pass]@[ip]:[port]/stream
-  - Sub Stream: rtsp://[user]:[pass]@[ip]:[port]/live
+  STREAM FORMAT:
+  - RTSP: rtsp://[user]:[pass]@[ip]:[port]/stream
+  - The server publishes a single video track and a single audio track, and it does not discriminate on the request path, so /live is accepted as well and resolves to the same stream
 
   Connect using VLC, OBS Studio, or any RTSP-compatible client.
 

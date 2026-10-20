@@ -3,7 +3,7 @@ CasThor RTSP transforms your Android device into a professional surveillance cam
 FEATURES:
 
 • Security Profile Streaming - Optimized for surveillance with 1-second GOP (I-Frame interval) for fast recovery during packet loss
-• Dual-Stream HUD - Professional On-Screen Display showing both MAIN (/stream) and SUB (/live) channels with real-time IP updates
+• On-Screen Display - Shows the live RTSP URL with real-time IP updates, ready to copy into VLC, OBS Studio or an NVR
 • Hardware FPS Enforcement - Guarantees precise frame rates by explicitly restarting the camera sensor
 • Edge-to-Edge UI - Immersive landscape mode utilizing full screen space without black bars
 • Stealth Mode - One-tap screen brightness reduction (5%) to save battery and reduce visibility during continuous recording
@@ -11,10 +11,13 @@ FEATURES:
 • Persistent Configuration - Remembers stream settings (Resolution, FPS, Port) across sessions
 • Security Hardened - Audited to prevent plain-text credential extraction via ADB backups; RTSP credentials are never written to disk
 
-STREAM FORMATS:
+STREAM FORMAT:
 
-• Main Stream (High Quality): rtsp://[user]:[pass]@[ip]:[port]/stream
-• Sub Stream (Low Latency): rtsp://[user]:[pass]@[ip]:[port]/live
+• RTSP: rtsp://[user]:[pass]@[ip]:[port]/stream
+
+The server publishes a single video track and a single audio track, and it does not
+discriminate on the request path, so /live is accepted as well and resolves to the
+same stream.
 
 Connect using VLC Media Player, OBS Studio, or any RTSP-compatible client (NVR systems, etc).
 

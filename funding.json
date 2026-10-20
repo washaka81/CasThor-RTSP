@@ -1,0 +1,13 @@
+{
+  "version": "v1.0.0",
+  "entity": "singled",
+  "projects": {
+    "CasThor RTSP": {
+      "platforms": {
+        "web": [
+          "https://ko-fi.com/washaka81"
+        ]
+      }
+    }
+  }
+}
