@@ -6,34 +6,9 @@ AuthorName: washaka81
 WebSite: https://github.com/washaka81/CasThor-RTSP
 SourceCode: https://github.com/washaka81/CasThor-RTSP
 IssueTracker: https://github.com/washaka81/CasThor-RTSP/issues
-Translation: https://github.com/washaka81/CasThor-RTSP
 Changelog: https://github.com/washaka81/CasThor-RTSP/releases
 
-Summary: Turn your phone into an RTSP surveillance camera
-Description: |-
-  CasThor RTSP transforms your Android device into a professional surveillance camera using RTSP streaming protocol.
-
-  FEATURES:
-  - Security Profile Streaming - 1-second GOP for fast recovery during packet loss
-  - On-Screen Display - Shows the live RTSP URL with real-time IP updates, ready to copy into VLC, OBS Studio or an NVR
-  - Hardware FPS Enforcement - Precise frame rates via camera sensor restart
-  - Edge-to-Edge UI - Immersive landscape mode with full screen utilization
-  - Stealth Mode - One-tap brightness reduction to save battery
-  - High-Quality Audio - 44.1kHz, 128kbps with echo cancellation and noise suppression
-  - Persistent Configuration - Remembers stream settings (resolution, FPS, port) across sessions
-  - Security Hardened - Prevents credential extraction via ADB backups; RTSP credentials are never written to disk
-
-  STREAM FORMAT:
-  - RTSP: rtsp://[user]:[pass]@[ip]:[port]/stream
-  - The server publishes a single video track and a single audio track, and it does not discriminate on the request path, so /live is accepted as well and resolves to the same stream
-
-  Connect using VLC, OBS Studio, or any RTSP-compatible client.
-
-  SUPPORTED CODECS: H.264, H.265/HEVC
-
-  REQUIREMENTS: Android 7.0+ with camera and hardware video encoding support.
-
-  All source code is open-source and licensed under GPL-3.0.
+AutoName: CasThor RTSP
 
 RepoType: git
 Repo: https://github.com/washaka81/CasThor-RTSP.git
@@ -51,15 +26,24 @@ Builds:
     prebuild:
       - sed -i 's|^org.gradle.java.home|#org.gradle.java.home|' ../gradle.properties
       - sed -i '/maven.*jitpack/a\        mavenLocal()' ../build.gradle
-      - sed -i 's|com.github.pedroSG94.RootEncoder:library:2.7.2|com.github.pedroSG94:library:2.7.2|'
+      - sed -i 
+        's|com.github.pedroSG94.RootEncoder:library:2.7.2|com.github.pedroSG94:library:2.7.2|'
         build.gradle
-      - sed -i 's|com.github.pedroSG94:RTSP-Server:1.4.1|com.github.pedroSG94:rtspserver:1.4.1|'
+      - sed -i 
+        's|com.github.pedroSG94:RTSP-Server:1.4.1|com.github.pedroSG94:rtspserver:1.4.1|'
         build.gradle
       - pushd $$RTSP-Server$$
       - sed -i 's|com.github.pedroSG94.RootEncoder:library|com.github.pedroSG94:library|'
         gradle/libs.versions.toml
       - sed -i '/jitpack/a\            mavenLocal()' settings.gradle.kts
       - popd
+      - curl -fsSL -o /tmp/jdk17.tar.gz 
+        https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_x64_linux_hotspot_17.0.21_9.tar.gz
+      - echo "8b9b611d917e3dfd8419d3566b5949226f69b052fed7e109c1368add1dfe8711  /tmp/jdk17.tar.gz"
+        | sha256sum -c -
+      - mkdir -p /tmp/jdk17 ~/.gradle
+      - tar -xzf /tmp/jdk17.tar.gz -C /tmp/jdk17 --strip-components=1
+      - echo "org.gradle.java.installations.paths=/tmp/jdk17" >> ~/.gradle/gradle.properties
       - pushd $$RootEncoder$$
       - ./gradlew :library:publishToMavenLocal :encoder:publishToMavenLocal :rtmp:publishToMavenLocal
         :rtsp:publishToMavenLocal :srt:publishToMavenLocal :udp:publishToMavenLocal
@@ -70,7 +54,7 @@ Builds:
       - popd
       - sed -i '/signingConfig /d' build.gradle
 
-AutoUpdateMode: Version v%v
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
 CurrentVersion: 1.0.2
 CurrentVersionCode: 6
