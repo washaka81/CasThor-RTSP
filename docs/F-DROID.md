@@ -1,11 +1,11 @@
 # Inclusión en F-Droid — CasThor RTSP
 
-Estado de la solicitud de inclusión en F-Droid a 2026-11-18.
+Estado de la solicitud de inclusión en F-Droid a 2026-11-19.
 
 ## Enlaces
 
 - Merge Request: https://gitlab.com/fdroid/fdroiddata/-/merge_requests/52694
-- Pipeline verde: https://gitlab.com/washaka81/fdroiddata/-/pipelines/3085689344
+- Pipeline verde: https://gitlab.com/washaka81/fdroiddata/-/pipelines/3088935224
 - RFP: https://gitlab.com/fdroid/rfp/-/work_items/4580
 - Fork: https://gitlab.com/washaka81/fdroiddata
 - Rama: `com.casthor` → `master` de `fdroid/fdroiddata`
@@ -15,7 +15,7 @@ Estado de la solicitud de inclusión en F-Droid a 2026-11-18.
 - MR **abierto** y técnicamente `mergeable`.
 - Título: `New app: CasThor RTSP`.
 - Descripción: plantilla oficial de F-Droid completa.
-- Pipeline **verde** en el commit `425334d6`; pasan todos los jobs,
+- Pipeline **verde** en el commit `f1c058fa`; pasan todos los jobs,
   incluidos `fdroid build` y `check apk`.
 - Pendiente: revisión y merge por un **maintainer de F-Droid**. La rama
   `master` de `fdroid/fdroiddata` está protegida y la cuenta `washaka81`
@@ -54,9 +54,11 @@ Metadata de la app:
 6. **JDK de los srclibs**: el buildserver de F-Droid (trixie) solo trae
    JDK 21, pero `RootEncoder` y `RTSP-Server` declaran
    `jvmToolchain(17)`. Compilar con target 21 hizo que R8 fallara por
-   `java.lang.MatchException`. Solución: descargar Temurin 17.0.21+9
-   verificado por SHA-256 en `prebuild` y registrarlo con
-   `org.gradle.java.installations.paths=/tmp/jdk17`.
+   `java.lang.MatchException`. El primer intento descargaba Temurin 17,
+   pero el revisor pidió **no instalar JDK**. Solución final: usar el JDK
+   21 del buildserver y forzar bytecode 17 con
+   `jvmToolchain(21)` + `compilerOptions.jvmTarget = JVM_17`; no se
+   instala ni descarga ningún JDK.
 
 ## Pendientes que puede plantear el revisor
 
@@ -94,7 +96,7 @@ Para actualizar la descripción:
 
 ```bash
 glab mr update 52694 -R fdroid/fdroiddata \
-  --description-file docs/descripcion-mr.md
+  --description-file <archivo.md>
 ```
 
 ## Entorno y credenciales
@@ -112,4 +114,7 @@ glab mr update 52694 -R fdroid/fdroiddata \
 - `a60480ec` — limpieza de metadata (`Summary`/`Description`, `AutoName`).
 - `82b9a4dd` — corrección de esquema y primer intento de toolchain
   (superseded).
-- `425334d6` — JDK 17 para los srclibs; pipeline verde.
+- `425334d6` — JDK 17 descargado en `prebuild`; pipeline verde, pero el
+  revisor pidió no instalar JDK.
+- `f1c058fa` — JDK del buildserver con target 17, sin instalar nada;
+  pipeline verde definitiva.

@@ -37,13 +37,10 @@ Builds:
         gradle/libs.versions.toml
       - sed -i '/jitpack/a\            mavenLocal()' settings.gradle.kts
       - popd
-      - curl -fsSL -o /tmp/jdk17.tar.gz 
-        https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jdk_x64_linux_hotspot_17.0.21_9.tar.gz
-      - echo "8b9b611d917e3dfd8419d3566b5949226f69b052fed7e109c1368add1dfe8711  /tmp/jdk17.tar.gz"
-        | sha256sum -c -
-      - mkdir -p /tmp/jdk17 ~/.gradle
-      - tar -xzf /tmp/jdk17.tar.gz -C /tmp/jdk17 --strip-components=1
-      - echo "org.gradle.java.installations.paths=/tmp/jdk17" >> ~/.gradle/gradle.properties
+      - sed -i 's|jvmToolchain(17)|jvmToolchain(21); compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }|' $$RootEncoder$$/*/build.gradle.kts
+      - sed -i 's|jvmToolchain(17)|jvmToolchain(21); compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }|' $$RTSP-Server$$/*/build.gradle.kts
       - pushd $$RootEncoder$$
       - ./gradlew :library:publishToMavenLocal :encoder:publishToMavenLocal :rtmp:publishToMavenLocal
         :rtsp:publishToMavenLocal :srt:publishToMavenLocal :udp:publishToMavenLocal
