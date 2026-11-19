@@ -53,9 +53,18 @@ Metadata de la app:
    finales que conserva el emisor YAML.
 6. **JDK de los srclibs**: el buildserver de F-Droid (trixie) solo trae
    JDK 21, pero `RootEncoder` y `RTSP-Server` declaran
-   `jvmToolchain(17)`. Se usa el JDK 21 del buildserver y se fuerza
-   bytecode 17 con `jvmToolchain(21)` +
-   `compilerOptions.jvmTarget = JVM_17`; no se instala ni descarga nada.
+   `jvmToolchain(17)`. Se elimina esa referencia y se fija únicamente
+   `compilerOptions.jvmTarget = JVM_17`; Gradle usa el JDK 21 del
+   buildserver y genera bytecode 17. No se instala ni descarga ningún JDK.
+7. **Comentario inline de linsui (línea 45)**: `./gradlew` →
+   `gradle` en los dos srclibs. El buildserver expone `gradlew-fdroid`
+   como `gradle`, que lee la versión del wrapper y verifica el SHA-256
+   de la distribución; no se usa el JAR del wrapper.
+8. **Sin rutas de JDK en el proyecto**: se eliminó
+   `org.gradle.java.home=/usr/lib/jvm/java-17-openjdk` de
+   `gradle.properties` en `main`. El build de F-Droid sigue apuntando a
+   `v1.0.2`, que aún contiene esa línea, por lo que el `prebuild` la
+   comenta; el próximo tag ya no necesitará ese `sed`.
 
 ## Pendientes que puede plantear el revisor
 
@@ -78,7 +87,8 @@ del MR:
 |---|---|
 | Plantilla del MR y título | ✅ |
 | Pipeline `fdroid build` + `check apk` | ✅ |
-| Sin instalar JDK adicional | ✅ JDK 21 del buildserver, target 17 |
+| Sin instalar JDK adicional | ✅ sin toolchain JDK; JDK 21 del buildserver, target 17 |
+| `gradle` en vez de `./gradlew` en los srclibs | ✅ `gradlew-fdroid` con checksum |
 | Metadata válida, última versión, commit completo | ✅ |
 | Fastlane: resumen, descripción, icono 512×512, changelog 6 | ✅ |
 | Capturas de móvil | ⏳ pendientes en `phoneScreenshots/` |
@@ -126,4 +136,6 @@ glab mr update 52694 -R fdroid/fdroiddata \
   (superseded).
 - `425334d6` — primer ajuste de toolchain (superseded).
 - `f1c058fa` — JDK del buildserver con target 17, sin instalar nada;
-  pipeline verde definitiva.
+  pipeline verde.
+- `c1b1254a` — `gradle` en los srclibs (comentario de linsui) y sin
+  referencias a toolchain JDK; pipeline en curso.
