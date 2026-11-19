@@ -26,9 +26,11 @@ Builds:
     prebuild:
       - sed -i 's|^org.gradle.java.home|#org.gradle.java.home|' ../gradle.properties
       - sed -i '/maven.*jitpack/a\        mavenLocal()' ../build.gradle
-      - sed -i 's|com.github.pedroSG94.RootEncoder:library:2.7.2|com.github.pedroSG94:library:2.7.2|'
+      - sed -i 
+        's|com.github.pedroSG94.RootEncoder:library:2.7.2|com.github.pedroSG94:library:2.7.2|'
         build.gradle
-      - sed -i 's|com.github.pedroSG94:RTSP-Server:1.4.1|com.github.pedroSG94:rtspserver:1.4.1|'
+      - sed -i 
+        's|com.github.pedroSG94:RTSP-Server:1.4.1|com.github.pedroSG94:rtspserver:1.4.1|'
         build.gradle
       - pushd $$RTSP-Server$$
       - sed -i 's|com.github.pedroSG94.RootEncoder:library|com.github.pedroSG94:library|'
