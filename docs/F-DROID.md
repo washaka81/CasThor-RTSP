@@ -72,6 +72,19 @@ del MR:
 - **Etiqueta `waiting-on-response`**: puede reaparecer si el bot reacciona
   a una pipeline fallida. Se elimina cuando el MR está al día.
 
+## Auditoría de políticas (2026-11-19)
+
+| Punto | Estado |
+|---|---|
+| Plantilla del MR y título | ✅ |
+| Pipeline `fdroid build` + `check apk` | ✅ |
+| Sin instalar JDK adicional | ✅ JDK 21 del buildserver, target 17 |
+| Metadata válida, última versión, commit completo | ✅ |
+| Fastlane: resumen, descripción, icono 512×512, changelog 6 | ✅ |
+| Capturas de móvil | ⏳ pendientes en `phoneScreenshots/` |
+| Repos externos como submódulos | ⚠️ `srclibs` justificados por las versiones de Gradle |
+| Reproducible builds | ⚠️ sin APKs de referencia; F-Droid firmaría con su clave |
+
 ## Cómo actualizar el MR
 
 ```bash
