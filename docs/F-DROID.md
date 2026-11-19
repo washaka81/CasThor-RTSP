@@ -5,7 +5,7 @@ Estado de la solicitud de inclusión en F-Droid a 2026-11-19.
 ## Enlaces
 
 - Merge Request: https://gitlab.com/fdroid/fdroiddata/-/merge_requests/52694
-- Pipeline verde: https://gitlab.com/washaka81/fdroiddata/-/pipelines/3088935224
+- Pipeline verde: https://gitlab.com/washaka81/fdroiddata/-/pipelines/3091695606
 - RFP: https://gitlab.com/fdroid/rfp/-/work_items/4580
 - Fork: https://gitlab.com/washaka81/fdroiddata
 - Rama: `com.casthor` → `master` de `fdroid/fdroiddata`
@@ -15,7 +15,7 @@ Estado de la solicitud de inclusión en F-Droid a 2026-11-19.
 - MR **abierto** y técnicamente `mergeable`.
 - Título: `New app: CasThor RTSP`.
 - Descripción: plantilla oficial de F-Droid completa.
-- Pipeline **verde** en el commit `f1c058fa`; pasan todos los jobs,
+- Pipeline **verde** en el commit `28b642f9`; pasan todos los jobs,
   incluidos `fdroid build` y `check apk`.
 - Pendiente: revisión y merge por un **maintainer de F-Droid**. La rama
   `master` de `fdroid/fdroiddata` está protegida y la cuenta `washaka81`
@@ -138,4 +138,6 @@ glab mr update 52694 -R fdroid/fdroiddata \
 - `f1c058fa` — JDK del buildserver con target 17, sin instalar nada;
   pipeline verde.
 - `c1b1254a` — `gradle` en los srclibs (comentario de linsui) y sin
-  referencias a toolchain JDK; pipeline en curso.
+  referencias a toolchain JDK; `fdroid build` validado.
+- `28b642f9` — conserva el formato de `rewritemeta` del CI (los `sed`
+  largos vuelven a ir divididos); pipeline verde definitiva.
