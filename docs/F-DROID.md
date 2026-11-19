@@ -53,12 +53,9 @@ Metadata de la app:
    finales que conserva el emisor YAML.
 6. **JDK de los srclibs**: el buildserver de F-Droid (trixie) solo trae
    JDK 21, pero `RootEncoder` y `RTSP-Server` declaran
-   `jvmToolchain(17)`. Compilar con target 21 hizo que R8 fallara por
-   `java.lang.MatchException`. El primer intento descargaba Temurin 17,
-   pero el revisor pidió **no instalar JDK**. Solución final: usar el JDK
-   21 del buildserver y forzar bytecode 17 con
-   `jvmToolchain(21)` + `compilerOptions.jvmTarget = JVM_17`; no se
-   instala ni descarga ningún JDK.
+   `jvmToolchain(17)`. Se usa el JDK 21 del buildserver y se fuerza
+   bytecode 17 con `jvmToolchain(21)` +
+   `compilerOptions.jvmTarget = JVM_17`; no se instala ni descarga nada.
 
 ## Pendientes que puede plantear el revisor
 
@@ -114,7 +111,6 @@ glab mr update 52694 -R fdroid/fdroiddata \
 - `a60480ec` — limpieza de metadata (`Summary`/`Description`, `AutoName`).
 - `82b9a4dd` — corrección de esquema y primer intento de toolchain
   (superseded).
-- `425334d6` — JDK 17 descargado en `prebuild`; pipeline verde, pero el
-  revisor pidió no instalar JDK.
+- `425334d6` — primer ajuste de toolchain (superseded).
 - `f1c058fa` — JDK del buildserver con target 17, sin instalar nada;
   pipeline verde definitiva.
