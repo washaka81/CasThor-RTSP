@@ -1,26 +1,72 @@
-# Gradle
+# Gradle / Android build outputs
 .gradle/
 .gradle_old/
 .gradle_tmp/
+.gradle-cache/
+.kotlin/
+build/
 app/build/
 app/build_old/
-build/
+app/release/
+out/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+captures/
+.cxx/
+.externalNativeBuild/
 
-# IDE
+# IDE / editor
 .idea/
 *.iml
+.vscode/
+.fleet/
+*.swp
+*.swo
 
-# Secrets / local
+# Secrets / local configuration
+# Never commit signing keys, API keys, tokens or machine-specific paths.
 *.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+*.key
+.env
+.env.*
 *.env
 local.properties
+secrets.properties
+keystore.properties
+signing.properties
+google-services.json
+*.log
+hs_err_pid*
+replay_pid*
 
-# Session / tool artifacts
-SESSION_DOCUMENTATION.md
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# AI agent sessions and local configuration
+.gemini/
 .commandcode/
 .poolside/
+.claude/
+.cursor/
+.windsurf/
+.continue/
+.opencode/
+.aider.*
 vertex-ai-projects/
+SESSION_DOCUMENTATION.md
 tmp/
 
-# Aider
-.aider.*
+# Backups / patches
+*.bak
+*.orig
+*.rej
+*~

@@ -1,6 +1,6 @@
 # Inclusión en F-Droid — CasThor RTSP
 
-Estado de la solicitud de inclusión en F-Droid a 2026-11-19.
+Estado de la solicitud de inclusión en F-Droid a 2026-11-20.
 
 ## Enlaces
 
@@ -12,17 +12,26 @@ Estado de la solicitud de inclusión en F-Droid a 2026-11-19.
 
 ## Estado
 
-- MR **abierto** y técnicamente `mergeable`.
+- MR **abierto**, sin conflictos y técnicamente `mergeable`.
 - Título: `New app: CasThor RTSP`.
 - Descripción: plantilla oficial de F-Droid completa.
 - Pipeline **verde** en el commit `28b642f9`; pasan todos los jobs,
-  incluidos `fdroid build` y `check apk`.
+  incluidos `fdroid build` y `check apk`:
+  <https://gitlab.com/washaka81/fdroiddata/-/pipelines/3091695606>.
 - Todos los hilos resolubles del MR están cerrados, incluido
-  «Don't install jdk». El autor no puede fusionar (`can_merge=false`):
-  falta el merge de un maintainer.
-- Pendiente: revisión y merge por un **maintainer de F-Droid**. La rama
-  `master` de `fdroid/fdroiddata` está protegida y la cuenta `washaka81`
-  no tiene rol en el proyecto; el autor no puede fusionar su propio MR.
+  «Don't install jdk».
+- **2026-11-20 (09:08 UTC)** — el maintainer **linsui** respondió:
+
+  > This MR is mostly ready. We'll test it later. If everything works well
+  > we'll merge it. Meantime if you release a new version please update this
+  > MR. Currently we have lots of MRs waiting for test, so it will take a
+  > long time.
+
+- **Pendiente**: prueba funcional por un maintainer y merge. No hay
+  correcciones bloqueantes solicitadas; la revisión técnica se considera
+  terminada.
+- La cuenta `washaka81` no puede fusionar el MR: la rama `master` de
+  `fdroid/fdroiddata` está protegida y no tiene rol en el proyecto.
 
 ## Contenido enviado
 
@@ -97,6 +106,15 @@ del MR:
 | Capturas de móvil | ⏳ pendientes en `phoneScreenshots/` |
 | Repos externos como submódulos | ⚠️ `srclibs` justificados por las versiones de Gradle |
 | Reproducible builds | ⚠️ sin APKs de referencia; F-Droid firmaría con su clave |
+
+## Próximos pasos
+
+- Mantener el MR actualizado si se publica una versión nueva; no hace falta
+  un bump de versión solo para la revisión.
+- La revisión queda en la cola de pruebas de F-Droid. Ayudar a probar otros
+  MRs de la cola acelera la revisión, según la respuesta de `linsui`.
+- Vigilar las notificaciones del MR por si el maintainer pide algún cambio
+  durante la prueba.
 
 ## Cómo actualizar el MR
 
