@@ -17,6 +17,9 @@ Estado de la solicitud de inclusión en F-Droid a 2026-11-19.
 - Descripción: plantilla oficial de F-Droid completa.
 - Pipeline **verde** en el commit `28b642f9`; pasan todos los jobs,
   incluidos `fdroid build` y `check apk`.
+- Todos los hilos resolubles del MR están cerrados, incluido
+  «Don't install jdk». El autor no puede fusionar (`can_merge=false`):
+  falta el merge de un maintainer.
 - Pendiente: revisión y merge por un **maintainer de F-Droid**. La rama
   `master` de `fdroid/fdroiddata` está protegida y la cuenta `washaka81`
   no tiene rol en el proyecto; el autor no puede fusionar su propio MR.
